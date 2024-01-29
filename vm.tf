@@ -125,3 +125,20 @@ resource "azurerm_windows_virtual_machine" "VM1" {
     version   = "latest"
   }
 }
+
+resource "azurerm_managed_disk" "datadisk1" {
+  name                 = "terraform-data-disk1"
+  location             = azurerm_resource_group.appgrp.location
+  resource_group_name  = azurerm_resource_group.appgrp.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "1"
+
+}
+
+resource "azurerm_virtual_machine_data_disk_attachment" "diskattach1" {
+  managed_disk_id    = azurerm_managed_disk.datadisk1.id
+  virtual_machine_id = azurerm_windows_virtual_machine.VM1.id
+  lun                = "10"
+  caching            = "ReadWrite"
+}
