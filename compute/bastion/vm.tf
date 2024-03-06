@@ -60,16 +60,7 @@ resource "azurerm_network_interface" "terraforminterface" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.subnet1.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.terraform-pub-ip.id
   }
-}
-
-resource "azurerm_public_ip" "terraform-pub-ip" {
-  name                    = "terra-ip"
-  location                = azurerm_resource_group.appgrp.location
-  resource_group_name     = azurerm_resource_group.appgrp.name
-  allocation_method       = "Dynamic"
-
 }
 
 #network security group
