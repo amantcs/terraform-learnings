@@ -18,6 +18,16 @@ locals {
     #security_group = azurerm_network_security_group.example.id
     }
   ]
+  networksecuritygroup_rules=[
+    {
+      priority=200
+      destination_port_range="3389"
+    },
+    {
+      priority=210
+      destination_port_range="80"
+    }
+  ]
 }
 
 # Create a resource group
@@ -79,28 +89,19 @@ resource "azurerm_network_security_group" "nsg1" {
   location            = azurerm_resource_group.appgrp.location
   resource_group_name = azurerm_resource_group.appgrp.name
 
-  security_rule {
-    name                       = "RDPRule"
-    priority                   = 300
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "3389"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "HTTPRule"
-    priority                   = 310
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
+  dynamic security_rule {
+    for_each = local.networksecuritygroup_rules
+    content {
+      name="Allow-${security_rule.value.destination_port_range}"
+      priority = security_rule.value.priority
+      direction                  = "Inbound"
+      access                     = "Allow"
+      protocol                   = "Tcp"
+      source_port_range          = "*"
+      destination_port_range=security_rule.value.destination_port_range
+      source_address_prefix      = "*"
+      destination_address_prefix = "*"
+    }
   }
 
 }

@@ -18,8 +18,16 @@ resource "azurerm_resource_group" "appgrp" {
   location = "East US"
 }
 
+resource "random_uuid" "test" {
+}
+
+output "random" {
+  value = substr(random_uuid.test.result,0,8)
+  
+}
+
 resource "azurerm_storage_account" "appstorage1" {
-  name                     = "storageterraform9876567"
+  name                     = lower(join("",["${var.storage_account_prefix}",substr(random_uuid.test.result,0,8)]))
   resource_group_name      = azurerm_resource_group.appgrp.name
   location                 = azurerm_resource_group.appgrp.location
   account_tier             = "Standard"
@@ -41,5 +49,5 @@ resource "azurerm_storage_blob" "blob1" {
   storage_account_name   = azurerm_storage_account.appstorage1.name
   storage_container_name = azurerm_storage_container.container1.name
   type                   = "Block"
-  source                 = "main.tf"
+  source                 = "main.tfplan"
 }
